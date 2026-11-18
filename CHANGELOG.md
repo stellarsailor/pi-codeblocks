@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] - 2026-11-18
+
+### Fixed
+
+- The npm package page and the Pi gallery show the English README. Translated guides use `README-<locale>.md` names, so npm no longer picks one of them as the package readme.
+
 ## [0.1.0] - 2026-11-17
 
 ### New Features

@@ -2,7 +2,7 @@
 
 Bloques de código Markdown con marco, nombre del lenguaje, resaltado de sintaxis y botón para copiar en la interfaz de terminal del agente de programación [Pi](https://pi.dev).
 
-[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Français](README.fr.md) · **Español** · [Português (Brasil)](README.pt-BR.md)
+[English](README.md) · [한국어](README-ko.md) · [日本語](README-ja.md) · [简体中文](README-zh-CN.md) · [Français](README-fr.md) · **Español** · [Português (Brasil)](README-pt-BR.md)
 
 ![Vista previa de un bloque TypeScript con marco, resaltado y botón para copiar en Pi](assets/code-block-preview.png)
 

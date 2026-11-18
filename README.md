@@ -2,7 +2,7 @@
 
 Framed Markdown code blocks with language labels, syntax highlighting, and a copy button for the [Pi](https://pi.dev) coding-agent TUI.
 
-**English** · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Français](README.fr.md) · [Español](README.es.md) · [Português (Brasil)](README.pt-BR.md)
+**English** · [한국어](README-ko.md) · [日本語](README-ja.md) · [简体中文](README-zh-CN.md) · [Français](README-fr.md) · [Español](README-es.md) · [Português (Brasil)](README-pt-BR.md)
 
 ![Preview of a framed, syntax-highlighted TypeScript block with the Copy button in Pi](assets/code-block-preview.png)
 

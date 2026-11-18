@@ -2,7 +2,7 @@
 
 [Pi](https://pi.dev) コーディングエージェントの TUI に、言語名、シンタックスハイライト、コピーボタンの付いた Markdown コードブロックを追加します。
 
-[English](README.md) · [한국어](README.ko.md) · **日本語** · [简体中文](README.zh-CN.md) · [Français](README.fr.md) · [Español](README.es.md) · [Português (Brasil)](README.pt-BR.md)
+[English](README.md) · [한국어](README-ko.md) · **日本語** · [简体中文](README-zh-CN.md) · [Français](README-fr.md) · [Español](README-es.md) · [Português (Brasil)](README-pt-BR.md)
 
 ![Pi の枠付き TypeScript コードブロック、シンタックスハイライト、コピーボタンのプレビュー](assets/code-block-preview.png)
 

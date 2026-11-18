@@ -2,7 +2,7 @@
 
 为 [Pi](https://pi.dev) 编程智能体的终端界面添加带边框、语言标签、语法高亮和复制按钮的 Markdown 代码块。
 
-[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · **简体中文** · [Français](README.fr.md) · [Español](README.es.md) · [Português (Brasil)](README.pt-BR.md)
+[English](README.md) · [한국어](README-ko.md) · [日本語](README-ja.md) · **简体中文** · [Français](README-fr.md) · [Español](README-es.md) · [Português (Brasil)](README-pt-BR.md)
 
 ![Pi 中带边框、语法高亮和复制按钮的 TypeScript 代码块预览](assets/code-block-preview.png)
 

@@ -2,7 +2,7 @@
 
 [Pi](https://pi.dev) 코딩 에이전트 TUI의 Markdown 코드 블록에 테두리, 형식 이름, 문법 강조와 복사 버튼을 더합니다.
 
-[English](README.md) · **한국어** · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Français](README.fr.md) · [Español](README.es.md) · [Português (Brasil)](README.pt-BR.md)
+[English](README.md) · **한국어** · [日本語](README-ja.md) · [简体中文](README-zh-CN.md) · [Français](README-fr.md) · [Español](README-es.md) · [Português (Brasil)](README-pt-BR.md)
 
 ![Pi의 테두리와 문법 강조가 적용된 TypeScript 블록 및 복사 버튼 미리보기](assets/code-block-preview.png)
 

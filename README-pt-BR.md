@@ -2,7 +2,7 @@
 
 Blocos de código Markdown com moldura, nome da linguagem, realce de sintaxe e botão de cópia para a interface de terminal do agente de programação [Pi](https://pi.dev).
 
-[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · [Français](README.fr.md) · [Español](README.es.md) · **Português (Brasil)**
+[English](README.md) · [한국어](README-ko.md) · [日本語](README-ja.md) · [简体中文](README-zh-CN.md) · [Français](README-fr.md) · [Español](README-es.md) · **Português (Brasil)**
 
 ![Prévia de um bloco TypeScript com moldura, realce de sintaxe e botão de cópia no Pi](assets/code-block-preview.png)
 

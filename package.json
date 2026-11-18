@@ -1,6 +1,6 @@
 {
   "name": "pi-codeblocks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Copyable Markdown code blocks with format labels and syntax highlighting for the Pi coding-agent TUI.",
   "license": "MIT",
@@ -33,12 +33,12 @@
     "extensions",
     "assets/code-block-preview.png",
     "CHANGELOG.md",
-    "README.ko.md",
-    "README.ja.md",
-    "README.zh-CN.md",
-    "README.fr.md",
-    "README.es.md",
-    "README.pt-BR.md"
+    "README-ko.md",
+    "README-ja.md",
+    "README-zh-CN.md",
+    "README-fr.md",
+    "README-es.md",
+    "README-pt-BR.md"
   ],
   "pi": {
     "extensions": [

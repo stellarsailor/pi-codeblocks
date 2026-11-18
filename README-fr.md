@@ -2,7 +2,7 @@
 
 Des blocs de code Markdown encadrés, avec nom de langage, coloration syntaxique et bouton de copie pour l'interface en terminal de l'agent de programmation [Pi](https://pi.dev).
 
-[English](README.md) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-CN.md) · **Français** · [Español](README.es.md) · [Português (Brasil)](README.pt-BR.md)
+[English](README.md) · [한국어](README-ko.md) · [日本語](README-ja.md) · [简体中文](README-zh-CN.md) · **Français** · [Español](README-es.md) · [Português (Brasil)](README-pt-BR.md)
 
 ![Aperçu d’un bloc TypeScript encadré avec coloration syntaxique et bouton de copie dans Pi](assets/code-block-preview.png)
 
