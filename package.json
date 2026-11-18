@@ -1,0 +1,71 @@
+{
+  "name": "pi-codeblocks",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Copyable Markdown code blocks with format labels and syntax highlighting for the Pi coding-agent TUI.",
+  "license": "MIT",
+  "author": "stellarsailor",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stellarsailor/pi-codeblocks.git"
+  },
+  "homepage": "https://github.com/stellarsailor/pi-codeblocks#readme",
+  "bugs": {
+    "url": "https://github.com/stellarsailor/pi-codeblocks/issues"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "pi",
+    "tui",
+    "terminal-ui",
+    "markdown",
+    "markdown-renderer",
+    "code-block",
+    "codeblocks",
+    "code-block-copy",
+    "copy-to-clipboard",
+    "syntax-highlighting",
+    "i18n"
+  ],
+  "files": [
+    "extensions",
+    "assets/code-block-preview.png",
+    "CHANGELOG.md",
+    "README.ko.md",
+    "README.ja.md",
+    "README.zh-CN.md",
+    "README.fr.md",
+    "README.es.md",
+    "README.pt-BR.md"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/code-blocks.ts"
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/code-blocks.test.cjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

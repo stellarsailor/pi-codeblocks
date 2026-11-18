@@ -1,0 +1,52 @@
+name: Compatibility
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  # Types come from the newest Pi; older releases keep some APIs untyped or absent.
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.19.0'
+          package-manager-cache: false
+      - name: Install Pi, TypeScript and Node types
+        run: >-
+          npm install --no-save --package-lock=false
+          "@earendil-works/pi-coding-agent@latest"
+          "@earendil-works/pi-tui@latest"
+          typescript@5
+          @types/node@22
+      - run: npm run typecheck
+
+  render:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Pi needs Node >= 22.19. 24 is the next LTS; 26 is current.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['22.19.0', '24']
+        pi: ['0.79.9', '1.5.0', latest]
+        include:
+          - os: ubuntu-latest
+            node: '26'
+            pi: latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      # One install call: a second `npm install --no-save` would prune the first.
+      - name: Install Pi ${{ matrix.pi }}
+        run: >-
+          npm install --no-save --package-lock=false
+          "@earendil-works/pi-coding-agent@${{ matrix.pi }}"
+          "@earendil-works/pi-tui@${{ matrix.pi }}"
+      - run: npm test
