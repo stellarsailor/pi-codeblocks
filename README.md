@@ -19,7 +19,7 @@ Restart Pi or run `/reload`. To try without installing, run `pi -e /path/to/pi-c
 
 ## Copy code
 
-- **Mouse:** `[Copy]` appears on finished, non-empty blocks in fullscreen when the block has at least 24 columns. The clicked button shows `[Copied!]` for 1.5 seconds after a successful write. Dragging still selects rendered text.
+- **Mouse:** `[Copy]` appears on finished, non-empty blocks in fullscreen when the block has at least 24 columns. The clicked button shows `[Copied!]` for 1.5 seconds after a successful write. At 40 columns or wider, `[Borderless]` temporarily removes only that block's vertical borders so dragging can select lines without `│` or `|`; `[Bordered]` restores them. The top/bottom rules stay visible. Dragging still selects rendered text.
 - **Keyboard:** `/codeblocks copy` copies the first non-empty code block in the latest assistant reply on the active branch, including blocks inside quotes and lists. Blocks are numbered from the top of that reply, so `/codeblocks copy 2` copies the second. Invalid or out-of-range numbers, or a reply without code, leave the clipboard untouched. This command works in regular and fullscreen TUI, not in RPC, JSON, or print mode.
 - **Copied text:** Line breaks and indentation stay intact; tabs become the three spaces Pi displays. Fence markers, frame padding, and terminal controls are excluded. Both copy methods use Pi's code-block parsing and clipboard backend, and writes run in request order.
 
