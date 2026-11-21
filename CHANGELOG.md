@@ -1,10 +1,14 @@
 # Changelog
 
-## Unreleased
+## [0.2.0] - 2026-11-21
 
 ### New Features
 
 - A per-block `[Borderless]` / `[Bordered]` mouse toggle at 40+ columns hides only the vertical frame borders for clean partial-line selection, while retaining top/bottom rules and the existing `[Copy]` button. Toggle state survives redraws and terminal resizing.
+
+### Changed
+
+- The extension entry is now `extensions/pi-codeblocks.ts`. Update a `pi -e` path that named the old file; an installed package needs no change.
 
 ## [0.1.1] - 2026-11-18
 
