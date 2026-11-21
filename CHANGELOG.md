@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### New Features
+
+- A per-block `[Borderless]` / `[Bordered]` mouse toggle at 40+ columns hides only the vertical frame borders for clean partial-line selection, while retaining top/bottom rules and the existing `[Copy]` button. Toggle state survives redraws and terminal resizing.
+
 ## [0.1.1] - 2026-11-18
 
 ### Fixed

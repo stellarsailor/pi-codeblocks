@@ -355,7 +355,7 @@ test("a finished reply in fullscreen shows Copy only when the host can route cli
     assert.deepEqual(regionsOf(component), []);
     return;
   }
-  assert.match(plain[0], /^╭─ JavaScript ─+ \[Copy\] ╮$/);
+  assert.match(plain[0], /^╭─ JavaScript ─+ \[Borderless\] \[Copy\] ╮$/);
   assert.ok(!component.render(W)[0].includes("\x1b_pi-codeblocks:"));
   const [region] = regionsOf(component);
   assert.equal(region.row, 0);
@@ -363,6 +363,75 @@ test("a finished reply in fullscreen shows Copy only when the host can route cli
   assert.equal(region.width, 6);
   assert.equal(region.text, JS_LINE);
   assert.ok(component.render(W).every((line) => env.visibleWidth(line) === W));
+});
+
+test("Borderless removes only the selected block's vertical borders, and Bordered restores them", async () => {
+  const env = await setup({ env: COPY });
+  if (!env.hasMouse) return;
+  const component = env.component(`${JS}\n\n${TS}`);
+  component.render(W);
+  const [first, second] = regionsOf(component);
+  assert.equal(typeof first.toggleCol, "number");
+  assert.equal(typeof second.toggleCol, "number");
+  assert.deepEqual(component.handleMouse(click(first, { x: first.toggleCol + 1 })), { handled: true });
+  const hidden = component.render(W).map((line) => stripVTControlCharacters(line).trimEnd());
+  const [hiddenFirst, unchangedSecond] = regionsOf(component);
+  assert.equal(hiddenFirst.col, first.col, "Copy stays at the same column when toggled");
+  assert.equal(hiddenFirst.toggleCol, first.toggleCol, "toggle stays at the same column");
+  assert.match(hidden[hiddenFirst.row], /\[Bordered\] {3}\[Copy\] ╮$/);
+  assert.equal(hidden[hiddenFirst.row + 1], JS_LINE);
+  assert.match(hidden[hiddenFirst.row + 2], /^╰─+╯$/, "bottom border remains");
+  assert.match(hidden[unchangedSecond.row], /\[Borderless\] \[Copy\] ╮$/);
+  assert.match(hidden[unchangedSecond.row + 1], /^│ /, "another block retains its border");
+
+  assert.deepEqual(component.handleMouse(click(hiddenFirst, { x: hiddenFirst.toggleCol + 1 })), { handled: true });
+  const restored = component.render(W).map((line) => stripVTControlCharacters(line).trimEnd());
+  const [restoredFirst] = regionsOf(component);
+  assert.match(restored[restoredFirst.row], /\[Borderless\] \[Copy\] ╮$/);
+  assert.match(restored[restoredFirst.row + 1], /^│ /);
+});
+
+test("hidden sides preserve Copy behavior, original text and layout across resizing", async () => {
+  const env = await setup({ env: COPY });
+  if (!env.hasMouse) return;
+  const clipboard = [];
+  env.slotOf().clipboard = async (value) => clipboard.push(value);
+  const component = env.component(`${JS}\n\n${JS}`);
+  component.render(W);
+  const [first] = regionsOf(component);
+  assert.deepEqual(component.handleMouse(click(first, { x: first.toggleCol + 1 })), { handled: true });
+  for (const width of [90, 45, 32, W]) {
+    const rows = component.render(width).map((line) => stripVTControlCharacters(line).trimEnd());
+    const [one, two] = regionsOf(component);
+    assert.equal(rows[one.row + 1], JS_LINE, "first matching block remains borderless");
+    assert.match(rows[two.row + 1], /^│ /, "identical code does not share toggle state");
+    assert.equal(one.toggleCol !== undefined, width >= 40);
+    assert.ok(rows.every((line) => env.visibleWidth(line) <= width), "no overflow");
+  }
+  const [firstAgain] = regionsOf(component);
+  assert.deepEqual(component.handleMouse(click(firstAgain)), { handled: true });
+  await flush();
+  assert.deepEqual(clipboard, [JS_LINE]);
+  assert.match(stripVTControlCharacters(component.render(W)[firstAgain.row]), /\[Bordered\] {3}\[Copied!\] ╮$/);
+});
+
+test("side toggle respects mouse modifiers, width and the global BAR option", async () => {
+  const env = await setup({ env: COPY });
+  if (!env.hasMouse) return;
+  const component = env.component();
+  component.render(W);
+  const [region] = regionsOf(component);
+  for (const overrides of [{ button: "right" }, { type: "press" }, { shift: true }, { ctrl: true }, { alt: true }]) {
+    assert.equal(component.handleMouse(click(region, { x: region.toggleCol + 1, ...overrides })), undefined);
+  }
+  assert.match(stripVTControlCharacters(component.render(W)[1]), /^│ /);
+  const narrow = env.component();
+  narrow.render(39);
+  assert.equal(regionsOf(narrow)[0]?.toggleCol, undefined);
+  const barMode = await setup({ env: { ...COPY, PI_CODEBLOCKS_BAR: "1" } });
+  const barBlock = barMode.component();
+  barBlock.render(W);
+  assert.equal(regionsOf(barBlock)[0]?.toggleCol, undefined);
 });
 
 test("the copied text is the block body: fences, frame cells and padding are excluded", async () => {
@@ -405,7 +474,7 @@ test("only the clicked block shows Copied! after the clipboard write succeeds", 
   await flush();
   const copied = component.render(W).map((line) => stripVTControlCharacters(line).trimEnd());
   assert.match(copied[first.row], /\[Copy\] ╮$/, "identical body, different block");
-  assert.match(copied[second.row], /^╭─ TypeScript ─+ \[Copied!\] ╮$/);
+  assert.match(copied[second.row], /^╭─ TypeScript ─+ \[Borderless\] \[Copied!\] ╮$/);
   assert.ok(component.render(W).every((line) => env.visibleWidth(line) === W));
   t.mock.timers.tick(2000);
   assert.ok(!component.render(W).some((line) => line.includes("[Copied!]")));
@@ -534,7 +603,7 @@ test("a command box in a reply becomes a framed block whose copy is the commands
   assert.match(shown, /^Run this:\n\n```bash\ncd ~\/Programming\/project-palace &&\npython3 scripts\/sync_mail\.py --dry-run\n```\n\nThen check the log\.$/);
   const component = env.component(shown);
   const plain = component.render(56).map((line) => stripVTControlCharacters(line).trimEnd());
-  assert.ok(plain.some((line) => /^╭─ Bash ─+ \[Copy\] ╮$/.test(line)));
+  assert.ok(plain.some((line) => /^╭─ Bash ─+ \[Borderless\] \[Copy\] ╮$/.test(line)));
   const [region] = regionsOf(component);
   assert.equal(region.text, "cd ~/Programming/project-palace &&\npython3 scripts/sync_mail.py --dry-run");
   assert.ok(!region.text.includes("│"));
@@ -675,7 +744,7 @@ test("the frame names the format the way a reader expects", async () => {
     ["html", "HTML"], ["json", "JSON"], ["bash", "Bash"], ["zsh", "Zsh"], ["console", "Shell"], ["ps1", "PowerShell"],
     ["md", "Markdown"], ["rs", "Rust"], ["go", "Go"], ["vue", "Vue"],
   ];
-  const suffix = env.hasMouse ? " \\[Copy\\] " : "";
+  const suffix = env.hasMouse ? " \\[Borderless\\] \\[Copy\\] " : "";
   for (const [lang, name] of [...cases, ["made-up-lang", "made-up-lang"], ["MermaidLike", "MermaidLike"]]) {
     assert.match(label(lang), new RegExp(`^╭─ ${name.replace(/[+#]/g, "\\$&")} ─+${suffix}╮$`), lang);
   }
@@ -688,7 +757,8 @@ test("a long label and a Copy tag never overrun a narrow frame", async () => {
       const component = env.component(`\`\`\`${lang}\ncode\n\`\`\``);
       const rows = component.render(width);
       assert.ok(rows.every((line) => env.visibleWidth(line) === width), `${lang} at ${width}`);
-      assert.match(stripVTControlCharacters(rows[0]).trimEnd(), env.hasMouse ? /^╭─ .*─+ \[Copy\] ╮$/ : /^╭─ .*─+╮$/, `${lang} at ${width}`);
+      const buttons = width >= 40 ? " \\[Borderless\\] \\[Copy\\]" : " \\[Copy\\]";
+      assert.match(stripVTControlCharacters(rows[0]).trimEnd(), env.hasMouse ? new RegExp(`^╭─ .*─+${buttons} ╮$`) : /^╭─ .*─+╮$/, `${lang} at ${width}`);
     }
   }
 });

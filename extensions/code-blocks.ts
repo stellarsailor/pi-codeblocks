@@ -9,6 +9,10 @@ const PATCH = Symbol.for("pi-codeblocks.renderer");
 const STATE = Symbol.for("pi-codeblocks.state");
 const MIN_WIDTH = 12;
 const COPY_MIN_WIDTH = 24;
+const SIDES_MIN_WIDTH = 40;
+const BORDERLESS_LABEL = "[Borderless]";
+const BORDERED_LABEL = "[Bordered]";
+const BORDER_LABEL_WIDTH = BORDERLESS_LABEL.length;
 const COPY_LABEL = "[Copy]";
 const COPIED_LABEL = "[Copied!]";
 const COPY_GROWTH = COPIED_LABEL.length - COPY_LABEL.length;
@@ -62,6 +66,9 @@ interface CopyRegion {
   width: number;
   offset: number;
   text: string;
+  index: number;
+  controls: string;
+  toggleCol?: number;
 }
 
 interface State {
@@ -69,6 +76,8 @@ interface State {
   fullscreen: boolean;
   copying: boolean;
   ids: Map<number, string>;
+  controls: Map<number, string>;
+  hiddenSides: Set<number>;
   nextId: number;
   regions: CopyRegion[];
   lines?: string[];
@@ -324,10 +333,24 @@ function lastReplyBlocks(session: ExtensionContext["sessionManager"], slot: Slot
   return blocks;
 }
 
+function canClick(event: tui.TuiMouseEvent): boolean {
+  return event?.type === "click" && event.button === "left" && !event.shift && !event.alt && !event.ctrl;
+}
+
 function copyAt(state: State, event: tui.TuiMouseEvent): CopyRegion | undefined {
-  if (event?.type !== "click" || event.button !== "left" || event.shift || event.alt || event.ctrl) return undefined;
+  if (!canClick(event)) return undefined;
   return state.regions.find((region) => event.y === region.row &&
     event.x >= region.col - (state.copied === region ? COPY_GROWTH : 0) && event.x < region.col + region.width);
+}
+
+function sidesAt(state: State, event: tui.TuiMouseEvent): CopyRegion | undefined {
+  if (!canClick(event)) return undefined;
+  return state.regions.find((region) => {
+    if (region.toggleCol === undefined || event.y !== region.row) return false;
+    const col = region.toggleCol - (state.copied === region ? COPY_GROWTH : 0);
+    const labelWidth = state.hiddenSides.has(region.index) ? BORDERED_LABEL.length : BORDERLESS_LABEL.length;
+    return event.x >= col && event.x < col + labelWidth;
+  });
 }
 
 const OFF_VALUES = new Set(["0", "false", "no", "off"]);
@@ -416,6 +439,9 @@ export default function codeBlocks(pi: ExtensionAPI) {
   const corners = ascii ? { top: "++", bottom: "++", wall: "|" } : { top: "╭╮", bottom: "╰╯", wall: "│" };
   // Reserve the longer label's cells without changing the right edge of the button.
   const copyTag = `${dash.repeat(COPY_GROWTH)} ${COPY_LABEL} `;
+  // Keep the Copy button aligned even when the side-toggle label is shorter.
+  const sidesTag = (hidden: boolean) =>
+    `${dash.repeat(COPY_GROWTH)} ${(hidden ? BORDERED_LABEL : BORDERLESS_LABEL).padEnd(BORDER_LABEL_WIDTH)} ${COPY_LABEL} `;
   const fill = flag("PI_CODEBLOCKS_FILL", false);
   let background: (() => string | undefined) | undefined;
   let notifyCopyError: ((message: string) => void) | undefined;
@@ -478,21 +504,26 @@ export default function codeBlocks(pi: ExtensionAPI) {
     if (language === "mermaid") return;
 
     const code = clean(token.text);
+    const active = scope?.owner === this ? scope.state : undefined;
+    const index = active ? active.nextId++ : -1;
+    const hiddenSides = !bar && active?.hiddenSides.has(index) === true;
     let tag = "";
-    if (scope?.owner === this && scope.state.copying && width >= COPY_MIN_WIDTH && code.trim()) {
-      const id = scope.state.nextId++;
-      scope.state.ids.set(id, code);
-      tag = codeMarker(id) + copyTag;
+    if (active?.copying && width >= COPY_MIN_WIDTH && code.trim()) {
+      active.ids.set(index, code);
+      const controls = !bar && width >= SIDES_MIN_WIDTH ? sidesTag(hiddenSides) : copyTag;
+      active.controls.set(index, controls);
+      tag = codeMarker(index) + controls;
     }
 
-    const inner = bar ? width : width - 4;
+    const inner = bar || hiddenSides ? width : width - 4;
     const rows = highlightedLines(theme, code, language).flatMap((line) => wrapTextWithAnsi(line, inner));
     const top = theme.codeBlockBorder(rule(showLang ? displayName(lang) : "", width, corners.top, dash, tag));
-    const wall = bar ? "" : theme.codeBlockBorder(corners.wall);
-    let lines = bar ? [top, ...rows] : [
+    const wall = bar || hiddenSides ? "" : theme.codeBlockBorder(corners.wall);
+    const bottom = theme.codeBlockBorder(rule("", width, corners.bottom, dash));
+    let lines = bar ? [top, ...rows] : hiddenSides ? [top, ...rows, bottom] : [
       top,
       ...rows.map((row) => `${wall} ${row}${" ".repeat(Math.max(0, inner - visibleWidth(row)))} ${wall}`),
-      theme.codeBlockBorder(rule("", width, corners.bottom, dash)),
+      bottom,
     ];
     const bg = background?.();
     if (bg && bg !== "\x1b[49m") {
@@ -511,8 +542,15 @@ export default function codeBlocks(pi: ExtensionAPI) {
     if (!state || state.handlers !== handlers || state.fullscreen !== enabled) {
       clearTimeout(state?.timer);
       this.invalidate();
-      state = this[STATE] = { handlers, fullscreen: enabled, copying: enabled, ids: new Map(), nextId: 0, regions: [] };
+      state = this[STATE] = {
+        handlers, fullscreen: enabled, copying: enabled, ids: new Map(), controls: new Map(),
+        hiddenSides: new Set(), nextId: 0, regions: [],
+      };
     }
+    // Stable block indexes let each toggle survive invalidation and terminal resizing.
+    state.nextId = 0;
+    state.ids.clear();
+    state.controls.clear();
     const previous = scope;
     scope = { owner: this, state };
     let lines: string[];
@@ -534,13 +572,18 @@ export default function codeBlocks(pi: ExtensionAPI) {
         lines[row] = line.replace(MARKER, "");
         const id = Number(match[1]);
         const text = state.ids.get(id);
+        const controls = state.controls.get(id);
         const offset = match.index;
-        if (text === undefined || !line.startsWith(copyTag, offset + match[0].length)) continue;
-        const col = visibleWidth(line.slice(0, offset)) + COPY_GROWTH + 1;
-        regions.push({ row, col, width: COPY_LABEL.length, offset, text });
+        if (text === undefined || controls === undefined || !line.startsWith(controls, offset + match[0].length)) continue;
+        const col = visibleWidth(line.slice(0, offset)) + visibleWidth(controls) - COPY_LABEL.length - 1;
+        const toggleCol = controls === copyTag ? undefined : col - BORDER_LABEL_WIDTH - 1;
+        regions.push({ row, col, width: COPY_LABEL.length, offset, text, index: id, controls, toggleCol });
         seen.add(id);
       }
-      for (const id of state.ids.keys()) if (!seen.has(id)) state.ids.delete(id);
+      for (const id of state.ids.keys()) if (!seen.has(id)) {
+        state.ids.delete(id);
+        state.controls.delete(id);
+      }
       state.regions = regions;
       // A frame drawn again at another width keeps the feedback on the same block.
       const kept = copiedIndex >= 0 ? regions[copiedIndex] : undefined;
@@ -549,16 +592,26 @@ export default function codeBlocks(pi: ExtensionAPI) {
       state.lines = lines;
     }
     if (!state.copied) return lines;
-    const { row, offset } = state.copied;
+    const { row, offset, controls } = state.copied;
     const line = lines[row];
     const feedback = lines.slice();
-    feedback[row] = `${line.slice(0, offset)} ${COPIED_LABEL} ${line.slice(offset + copyTag.length)}`;
+    feedback[row] = `${line.slice(0, offset)}${controls.slice(COPY_GROWTH).replace(COPY_LABEL, COPIED_LABEL)}${line.slice(offset + controls.length)}`;
     return feedback;
   };
 
   handlers.click = function (event) {
     const state = this[STATE];
     if (!fullscreen() || !state || state.handlers !== handlers) return;
+    const toggle = sidesAt(state, event);
+    if (toggle) {
+      if (state.hiddenSides.has(toggle.index)) state.hiddenSides.delete(toggle.index);
+      else state.hiddenSides.add(toggle.index);
+      clearTimeout(state.timer);
+      state.copied = undefined;
+      this.invalidate();
+      redraw();
+      return { handled: true };
+    }
     const region = copyAt(state, event);
     if (!region) return;
     const current = ++attempt;
