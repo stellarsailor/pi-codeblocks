@@ -15,7 +15,7 @@ pi install /path/to/pi-codeblocks  # ローカルのチェックアウト
 pi install npm:pi-codeblocks       # npm 公開後
 ```
 
-Pi を再起動するか `/reload` を実行してください。インストールせずに試すには `pi -e /path/to/pi-codeblocks/extensions/code-blocks.ts` を使います。削除するときは `pi remove` にインストール時と同じソースを指定します。
+Pi を再起動するか `/reload` を実行してください。インストールせずに試すには `pi -e /path/to/pi-codeblocks/extensions/pi-codeblocks.ts` を使います。削除するときは `pi remove` にインストール時と同じソースを指定します。
 
 ## コードをコピー
 

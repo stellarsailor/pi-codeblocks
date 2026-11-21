@@ -15,7 +15,7 @@ pi install /path/to/pi-codeblocks  # 本地检出目录
 pi install npm:pi-codeblocks       # npm 发布后
 ```
 
-重启 Pi 或运行 `/reload`。无需安装即可试用：`pi -e /path/to/pi-codeblocks/extensions/code-blocks.ts`。卸载时使用 `pi remove`，并指定与安装时相同的来源。
+重启 Pi 或运行 `/reload`。无需安装即可试用：`pi -e /path/to/pi-codeblocks/extensions/pi-codeblocks.ts`。卸载时使用 `pi remove`，并指定与安装时相同的来源。
 
 ## 复制代码
 

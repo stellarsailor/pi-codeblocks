@@ -15,7 +15,7 @@ pi install /path/to/pi-codeblocks  # 로컬 체크아웃
 pi install npm:pi-codeblocks       # npm 공개 후
 ```
 
-Pi를 다시 시작하거나 `/reload`를 실행하세요. 설치 없이 써보려면 `pi -e /path/to/pi-codeblocks/extensions/code-blocks.ts`를 실행하세요. 제거하려면 `pi remove`에 설치할 때와 같은 소스를 넘기면 됩니다.
+Pi를 다시 시작하거나 `/reload`를 실행하세요. 설치 없이 써보려면 `pi -e /path/to/pi-codeblocks/extensions/pi-codeblocks.ts`를 실행하세요. 제거하려면 `pi remove`에 설치할 때와 같은 소스를 넘기면 됩니다.
 
 ## 코드 복사
 

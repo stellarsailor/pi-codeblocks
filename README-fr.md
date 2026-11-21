@@ -15,7 +15,7 @@ pi install /path/to/pi-codeblocks  # depuis un dépôt local
 pi install npm:pi-codeblocks       # après publication sur npm
 ```
 
-Redémarrez Pi ou lancez `/reload`. Pour essayer l'extension sans l'installer, lancez `pi -e /path/to/pi-codeblocks/extensions/code-blocks.ts`. Pour la désinstaller, passez la même source à `pi remove`.
+Redémarrez Pi ou lancez `/reload`. Pour essayer l'extension sans l'installer, lancez `pi -e /path/to/pi-codeblocks/extensions/pi-codeblocks.ts`. Pour la désinstaller, passez la même source à `pi remove`.
 
 ## Copier du code
 

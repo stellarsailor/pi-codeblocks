@@ -42,7 +42,7 @@
   ],
   "pi": {
     "extensions": [
-      "./extensions/code-blocks.ts"
+      "./extensions/pi-codeblocks.ts"
     ]
   },
   "scripts": {

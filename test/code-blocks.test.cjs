@@ -34,7 +34,7 @@ const piRoot = installedPi();
 const fromPi = (file) => import(pathToFileURL(path.join(piRoot, "dist", file)));
 const piRequire = createRequire(path.join(piRoot, "package.json"));
 const tui = import(pathToFileURL(piRequire.resolve("@earendil-works/pi-tui")));
-const EXTENSION = path.join(__dirname, "../extensions/code-blocks.ts");
+const EXTENSION = path.join(__dirname, "../extensions/pi-codeblocks.ts");
 const W = 64;
 
 async function setup({ env = {}, context } = {}) {
